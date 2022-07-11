@@ -6,10 +6,6 @@ namespace ServiceBusDemo.Controllers
     [Route("[controller]")]
     public class QueueController : ControllerBase
     {
-        public QueueController()
-        {
-        }
-
         [HttpGet]
         public IEnumerable<string> Get()
         {
