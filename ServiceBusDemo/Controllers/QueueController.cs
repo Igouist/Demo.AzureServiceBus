@@ -34,5 +34,40 @@ namespace ServiceBusDemo.Controllers
             var message = new ServiceBusMessage(context);
             await sender.SendMessageAsync(message);
         }
+
+        /// <summary>
+        /// 將一堆訊息放入佇列
+        /// </summary>
+        /// <param name="context"></param>
+        /// <returns></returns>
+        [HttpPost("Batch")]
+        public async Task EnqueueBatch([FromBody] string context)
+        {
+            // 把訊息重複個十次，假裝我們有很多訊息
+            var contexts = Enumerable.Repeat(context, 10);
+            
+            // 和單則訊息的場合一樣：建立 Client 及 Sender
+            var connectionString = "YOUR SERVICE BUS CONNECTION STRING";
+            await using var client = new ServiceBusClient(connectionString);
+            
+            var queueName = "YOUR QUEUE NAME";
+            await using var sender = client.CreateSender(queueName);
+
+            // 從 Sender 來建立一批訊息（類似郵差包的感覺）
+            using var messageBatch = await sender.CreateMessageBatchAsync();
+
+            // 將訊息逐一嘗試放到這批訊息中（把信塞到郵差包的感覺）
+            foreach (var text in contexts)
+            {
+                var message = new ServiceBusMessage(text);
+                if (messageBatch.TryAddMessage(message) is false)
+                {
+                    throw new Exception("放入訊息失敗");
+                }
+            }
+
+            // 把整個郵差包丟出去
+            await sender.SendMessagesAsync(messageBatch);
+        }
     }
 }
