@@ -71,6 +71,28 @@ namespace ServiceBusDemo.Controllers
         }
 
         /// <summary>
+        /// 取出佇列中的單則訊息
+        /// </summary>
+        /// <returns></returns>
+        [HttpGet("Receive")]
+        public async Task<string> Receive()
+        {
+            // 和發送訊息的場合差不多：先建立 Client 及 Receiver
+            var connectionString = "YOUR SERVICE BUS CONNECTION STRING";
+            await using var client = new ServiceBusClient(connectionString);
+
+            // 和前面的 ServiceBusSender 一樣，有提供 DisposeAsync 方法讓我們用完時關閉
+            // 或是直接使用 await using 包起來
+            var queueName = "YOUR QUEUE NAME";
+            await using var receiver = client.CreateReceiver(queueName);
+
+            // 使用 ReceiveMessageAsync 來把訊息讀取出來
+            var message = await receiver.ReceiveMessageAsync();
+            var body = message.Body.ToString();
+            return body;
+        }
+
+        /// <summary>
         /// 取出佇列中的訊息
         /// </summary>
         /// <returns></returns>
