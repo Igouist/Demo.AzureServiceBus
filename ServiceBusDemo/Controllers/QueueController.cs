@@ -89,6 +89,10 @@ namespace ServiceBusDemo.Controllers
             // 使用 ReceiveMessageAsync 來把訊息讀取出來
             var message = await receiver.ReceiveMessageAsync();
             var body = message.Body.ToString();
+            
+            // 告訴 Service Bus 這個訊息有成功處理了
+            await receiver.CompleteMessageAsync(message);
+
             return body;
         }
 

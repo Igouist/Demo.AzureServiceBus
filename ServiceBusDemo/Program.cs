@@ -1,3 +1,5 @@
+using Microsoft.Extensions.Azure;
+
 namespace ServiceBusDemo
 {
     public class Program
@@ -9,6 +11,16 @@ namespace ServiceBusDemo
             builder.Services.AddControllers();
             builder.Services.AddEndpointsApiExplorer();
             builder.Services.AddSwaggerGen();
+
+            builder.Services.AddAzureClients(clientsBuilder =>
+            {
+                var connectionString = builder.Configuration
+                    .GetConnectionString("ServiceBus");
+                
+                clientsBuilder
+                    .AddServiceBusClient(connectionString)
+                    .WithName("ServiceBusClient");
+            });
 
             var app = builder.Build();
             
